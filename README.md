@@ -215,6 +215,10 @@ server.connect(transport);
   - Parameters:
     - `raw` (boolean, optional): Whether to return without compression (in PNG format). Default is false, which returns a JPEG image.
 
+- **browser_html_snapshot**
+  - Description: Gets a HTML snapshot of the current page. You can't perform actions based on the snapshot, use browser_snapshot for actions.
+  - Parameters: None
+
 ### Vision-based Interactions
 
 - **browser_screen_move_mouse**

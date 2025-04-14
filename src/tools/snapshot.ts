@@ -179,6 +179,25 @@ const screenshot: Tool = {
   },
 };
 
+const htmlSnapshotSchema = z.object({});
+
+const htmlSnapshot: Tool = {
+  capability: 'core',
+  schema: {
+    name: 'browser_html_snapshot',
+    description: `Gets a HTML snapshot of the current page. You can't perform actions based on the snapshot, use browser_snapshot for actions.`,
+    inputSchema: zodToJsonSchema(htmlSnapshotSchema),
+  },
+
+  handle: async (context, params) => {
+    const tab = await context.ensureTab();
+    const snapshot = await tab.page.content();
+    return {
+      content: [{ type: 'text', text: '```html\n' + snapshot + '\n```', mimeType: 'text/html' }],
+    };
+  },
+};
+
 export default [
   snapshot,
   click,
@@ -187,4 +206,5 @@ export default [
   type,
   selectOption,
   screenshot,
+  htmlSnapshot,
 ];
