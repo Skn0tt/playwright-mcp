@@ -21,7 +21,7 @@ test('browser_file_upload', async ({ client }) => {
   expect(await client.callTool({
     name: 'browser_navigate',
     arguments: {
-      url: 'data:text/html,<html><title>Title</title><input type="file" /><button>Button</button></html>',
+      url: 'data:text/html,<html><title>Title</title><input type="file" multiple/><button>Button</button></html>',
     },
   })).toContainTextContent('- textbox [ref=s1e3]');
 
@@ -33,6 +33,13 @@ test('browser_file_upload', async ({ client }) => {
     },
   })).toContainTextContent(`### Modal state
 - [File chooser]: can be handled by the "browser_file_upload" tool`);
+
+  {
+    expect(await client.callTool({
+      name: 'browser_file_upload',
+      arguments: {},
+    })).toContainTextContent('Either paths or files must be provided');
+  }
 
   const filePath = test.info().outputPath('test.txt');
   await fs.writeFile(filePath, 'Hello, world!');
@@ -50,15 +57,42 @@ test('browser_file_upload', async ({ client }) => {
   }
 
   {
-    const response = await client.callTool({
+    expect(await client.callTool({
       name: 'browser_click',
       arguments: {
         element: 'Textbox',
         ref: 's3e3',
       },
+    })).toContainTextContent(`### Modal state
+- [File chooser]: can be handled by the "browser_file_upload" tool`);
+
+    const response = await client.callTool({
+      name: 'browser_file_upload',
+      arguments: {
+        files: [
+          {
+            name: 'foo.txt',
+            mimeType: 'text/plain',
+            content: 'SGVsbG8sIHdvcmxkIQ==',
+          }
+        ],
+      },
     });
 
-    expect(response).toContainTextContent('- [File chooser]: can be handled by the \"browser_file_upload\" tool');
+    expect(response).not.toContainTextContent('### Modal state');
+    expect(response).toContainTextContent('textbox [ref=s5e3]: C:\\fakepath\\foo.txt');
+  }
+
+  {
+    const response = await client.callTool({
+      name: 'browser_click',
+      arguments: {
+        element: 'Textbox',
+        ref: 's5e3',
+      },
+    });
+
+    expect(response).toContainTextContent('- [File chooser]: can be handled by the "browser_file_upload" tool');
   }
 
   {
