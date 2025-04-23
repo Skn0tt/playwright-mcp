@@ -24,7 +24,7 @@ export interface Plugin {
 
 type ToolCapability = 'core' | 'tabs' | 'pdf' | 'history' | 'wait' | 'files' | 'install';
 
-type Options = {
+export type Options = {
     /**
      * The browser to use (e.g., 'chrome', 'chromium', 'firefox', 'webkit', 'msedge').
      */
@@ -61,7 +61,7 @@ type Options = {
      */
     capabilities?: ToolCapability[];
 
-    plugins?: Plugin[];
+    plugin?: Plugin;
 };
 export declare function createServer(options?: Options): Promise<Server>;
 export {};

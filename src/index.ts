@@ -32,10 +32,10 @@ import snapshot from './tools/snapshot';
 import tabs from './tools/tabs';
 import screen from './tools/screen';
 
-import type { Tool, ToolCapability } from './tools/tool';
+import type { Tool } from './tools/tool';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type { LaunchOptions } from 'playwright';
-import type { Plugin } from '..';
+import type { Options } from '..';
 
 const snapshotTools: Tool<any>[] = [
   ...common(true),
@@ -64,17 +64,6 @@ const screenshotTools: Tool<any>[] = [
   ...screen,
   ...tabs(false),
 ];
-
-type Options = {
-  browser?: string;
-  userDataDir?: string;
-  headless?: boolean;
-  executablePath?: string;
-  cdpEndpoint?: string;
-  vision?: boolean;
-  capabilities?: ToolCapability[];
-  plugin?: Plugin;
-};
 
 const packageJSON = require('../package.json');
 
