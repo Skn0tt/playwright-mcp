@@ -19,7 +19,7 @@ import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type { BrowserContext } from 'playwright';
 
 export interface Plugin {
-    createBrowserContext(browserName: 'chromium' | 'firefox' | 'webkit', launchOptions?: playwright.LaunchOptions): Promise<BrowserContext>;
+    launchPersistentContext(browserName: 'chromium' | 'firefox' | 'webkit', userDataDir: string, launchOptions?: playwright.LaunchOptions): Promise<BrowserContext>;
 }
 
 type ToolCapability = 'core' | 'tabs' | 'pdf' | 'history' | 'wait' | 'files' | 'install';

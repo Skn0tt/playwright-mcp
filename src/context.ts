@@ -284,12 +284,6 @@ ${code.join('\n')}
   }
 
   private async _createBrowserContext(): Promise<{ browser?: playwright.Browser, browserContext: playwright.BrowserContext }> {
-    for (const plugin of this._plugins) {
-      const browserContext = await plugin.createBrowserContext(this.options.browserName ?? 'chromium', this.options.launchOptions);
-      if (browserContext)
-        return { browserContext, browser: browserContext.browser() ?? undefined };
-    }
-
     if (this.options.remoteEndpoint) {
       const url = new URL(this.options.remoteEndpoint);
       if (this.options.browserName)
@@ -312,6 +306,10 @@ ${code.join('\n')}
   }
 
   private async _launchPersistentContext(): Promise<playwright.BrowserContext> {
+    const plugin = this._plugins[0];
+    if (plugin)
+      return await plugin.launchPersistentContext(this.options.browserName ?? 'chromium', this.options.userDataDir, this.options.launchOptions);
+
     try {
       const browserType = this.options.browserName ? playwright[this.options.browserName] : playwright.chromium;
       return await browserType.launchPersistentContext(this.options.userDataDir, this.options.launchOptions);

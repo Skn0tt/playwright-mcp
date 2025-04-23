@@ -5,9 +5,8 @@ const playwright = require('playwright');
  */
 module.exports = async function() {
   return {
-    async createBrowserContext(browserName, launchOptions) {
-      const browser = await playwright[browserName].launch(launchOptions);
-      const context = await browser.newContext();
+    async launchPersistentContext(browserName, userDataDir, launchOptions) {
+      const context = await playwright[browserName].launchPersistentContext(userDataDir, launchOptions);
       await context.addInitScript(() => {
         Math.random = () => 42;
       });
