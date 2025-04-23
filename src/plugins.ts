@@ -22,7 +22,7 @@ type PluginFactory = () => Promise<Plugin>;
 
 const cwd = process.cwd().endsWith(path.sep) ? process.cwd() : process.cwd() + path.sep;
 
-async function loadPlugin(pathOrNPMModule: string): Promise<PluginFactory> {
+export async function loadPlugin(pathOrNPMModule: string): Promise<PluginFactory> {
   const plugin = module.createRequire(cwd)(pathOrNPMModule);
   console.error(`Loaded plugin from ${pathOrNPMModule}`);
   return async () => {
@@ -30,11 +30,4 @@ async function loadPlugin(pathOrNPMModule: string): Promise<PluginFactory> {
       return await plugin();
     return await plugin.default();
   };
-}
-
-export async function loadPlugins(pluginArgs: string[]) {
-  const plugins: PluginFactory[] = [];
-  for (const pluginArg of pluginArgs)
-    plugins.push(await loadPlugin(pluginArg));
-  return plugins;
 }

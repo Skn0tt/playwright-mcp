@@ -30,7 +30,7 @@ export type ContextOptions = {
   launchOptions?: playwright.LaunchOptions;
   cdpEndpoint?: string;
   remoteEndpoint?: string;
-  plugins: Plugin[];
+  plugin?: Plugin;
 };
 
 type PageOrFrameLocator = playwright.Page | playwright.FrameLocator;
@@ -48,12 +48,10 @@ export class Context {
   private _currentTab: Tab | undefined;
   private _modalStates: (ModalState & { tab: Tab })[] = [];
   private _pendingAction: PendingAction | undefined;
-  private _plugins: Plugin[] = [];
 
   constructor(tools: Tool[], options: ContextOptions) {
     this.tools = tools;
     this.options = options;
-    this._plugins = options.plugins;
   }
 
   modalStates(): ModalState[] {
@@ -306,9 +304,8 @@ ${code.join('\n')}
   }
 
   private async _launchPersistentContext(): Promise<playwright.BrowserContext> {
-    const plugin = this._plugins[0];
-    if (plugin)
-      return await plugin.launchPersistentContext(this.options.browserName ?? 'chromium', this.options.userDataDir, this.options.launchOptions);
+    if (this.options.plugin)
+      return await this.options.plugin.launchPersistentContext(this.options.browserName ?? 'chromium', this.options.userDataDir, this.options.launchOptions);
 
     try {
       const browserType = this.options.browserName ? playwright[this.options.browserName] : playwright.chromium;

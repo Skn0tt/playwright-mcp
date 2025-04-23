@@ -73,7 +73,7 @@ type Options = {
   cdpEndpoint?: string;
   vision?: boolean;
   capabilities?: ToolCapability[];
-  plugins?: Plugin[];
+  plugin?: Plugin;
 };
 
 const packageJSON = require('../package.json');
@@ -125,7 +125,7 @@ export async function createServer(options?: Options): Promise<Server> {
     userDataDir,
     launchOptions,
     cdpEndpoint: options?.cdpEndpoint,
-    plugins: options?.plugins ?? [],
+    plugin: options?.plugin,
   });
 }
 
