@@ -26,7 +26,7 @@ import { TestServer } from './testserver';
 type TestFixtures = {
   client: Client;
   visionClient: Client;
-  startClient: (options?: { args?: string[] }) => Promise<Client>;
+  startClient: (options?: { args?: string[], cwd?: string }) => Promise<Client>;
   wsEndpoint: string;
   cdpEndpoint: string;
   server: TestServer;
@@ -64,6 +64,7 @@ export const test = baseTest.extend<TestFixtures, WorkerFixtures>({
       const transport = new StdioClientTransport({
         command: 'node',
         args: [path.join(__dirname, '../cli.js'), ...args],
+        cwd: options?.cwd,
       });
       const client = new Client({ name: 'test', version: '1.0.0' });
       await client.connect(transport);

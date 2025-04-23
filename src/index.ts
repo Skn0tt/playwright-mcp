@@ -35,6 +35,7 @@ import screen from './tools/screen';
 import type { Tool, ToolCapability } from './tools/tool';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type { LaunchOptions } from 'playwright';
+import type { Plugin } from '..';
 
 const snapshotTools: Tool<any>[] = [
   ...common(true),
@@ -72,6 +73,7 @@ type Options = {
   cdpEndpoint?: string;
   vision?: boolean;
   capabilities?: ToolCapability[];
+  plugins?: Plugin[];
 };
 
 const packageJSON = require('../package.json');
@@ -123,6 +125,7 @@ export async function createServer(options?: Options): Promise<Server> {
     userDataDir,
     launchOptions,
     cdpEndpoint: options?.cdpEndpoint,
+    plugins: options?.plugins ?? [],
   });
 }
 

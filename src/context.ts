@@ -22,6 +22,7 @@ import { ManualPromise } from './manualPromise';
 
 import type { ImageContent, TextContent } from '@modelcontextprotocol/sdk/types';
 import type { ModalState, Tool, ToolActionResult } from './tools/tool';
+import { Plugin } from '..';
 
 export type ContextOptions = {
   browserName?: 'chromium' | 'firefox' | 'webkit';
@@ -29,6 +30,7 @@ export type ContextOptions = {
   launchOptions?: playwright.LaunchOptions;
   cdpEndpoint?: string;
   remoteEndpoint?: string;
+  plugins: Plugin[];
 };
 
 type PageOrFrameLocator = playwright.Page | playwright.FrameLocator;
@@ -46,10 +48,12 @@ export class Context {
   private _currentTab: Tab | undefined;
   private _modalStates: (ModalState & { tab: Tab })[] = [];
   private _pendingAction: PendingAction | undefined;
+  private _plugins: Plugin[] = [];
 
   constructor(tools: Tool[], options: ContextOptions) {
     this.tools = tools;
     this.options = options;
+    this._plugins = options.plugins;
   }
 
   modalStates(): ModalState[] {
@@ -272,6 +276,8 @@ ${code.join('\n')}
       const context = await this._createBrowserContext();
       this._browser = context.browser;
       this._browserContext = context.browserContext;
+      for (const plugin of this._plugins)
+        await plugin.onCreateBrowserContext(this._browserContext);
       for (const page of this._browserContext.pages())
         this._onPageCreated(page);
       this._browserContext.on('page', page => this._onPageCreated(page));

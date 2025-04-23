@@ -26,8 +26,17 @@ import { ServerList } from './server';
 
 import assert from 'assert';
 import { ToolCapability } from './tools/tool';
+import { loadPlugins } from './plugins';
+import type { Plugin } from '..';
 
 const packageJSON = require('../package.json');
+
+function collectArray(value: string, previous: string[] | undefined): string[] {
+  if (!previous)
+    return [value];
+  previous.push(value);
+  return previous;
+}
 
 program
     .version('Version ' + packageJSON.version)
@@ -39,17 +48,26 @@ program
     .option('--headless', 'Run browser in headless mode, headed by default')
     .option('--port <port>', 'Port to listen on for SSE transport.')
     .option('--user-data-dir <path>', 'Path to the user data directory')
+    .option('--plugin <plugin>', 'Path to a plugin to load. Can also be an NPM package name.', collectArray)
     .option('--vision', 'Run server that uses screenshots (Aria snapshots are used by default)')
     .action(async options => {
-      const serverList = new ServerList(() => createServer({
-        browser: options.browser,
-        userDataDir: options.userDataDir,
-        headless: options.headless,
-        executablePath: options.executablePath,
-        vision: !!options.vision,
-        cdpEndpoint: options.cdpEndpoint,
-        capabilities: options.caps?.split(',').map((c: string) => c.trim() as ToolCapability),
-      }));
+      const pluginFactories = await loadPlugins(options.plugin ?? []);
+      const serverList = new ServerList(async () => {
+        const plugins: Plugin[] = [];
+        for (const pluginFactory of pluginFactories)
+          plugins.push(await pluginFactory());
+
+        return await createServer({
+          browser: options.browser,
+          userDataDir: options.userDataDir,
+          headless: options.headless,
+          executablePath: options.executablePath,
+          vision: !!options.vision,
+          cdpEndpoint: options.cdpEndpoint,
+          capabilities: options.caps?.split(',').map((c: string) => c.trim() as ToolCapability),
+          plugins,
+        });
+      });
       setupExitWatchdog(serverList);
 
       if (options.port) {

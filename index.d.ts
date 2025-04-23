@@ -16,6 +16,11 @@
  */
 
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import type { BrowserContext } from 'playwright';
+
+export interface Plugin {
+    onCreateBrowserContext(browserContext: BrowserContext): Promise<void>;
+}
 
 type ToolCapability = 'core' | 'tabs' | 'pdf' | 'history' | 'wait' | 'files' | 'install';
 
@@ -55,6 +60,8 @@ type Options = {
      *   - 'install': Browser installation utilities.
      */
     capabilities?: ToolCapability[];
+
+    plugins?: Plugin[];
 };
 export declare function createServer(options?: Options): Promise<Server>;
 export {};
