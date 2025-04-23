@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
+import path from 'node:path';
 import fs from 'node:fs/promises';
 import { expect, test } from './fixtures';
-import type { Plugin } from '..';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
-function createPlugin(): Plugin {
-  return {
-    async onCreateBrowserContext(browserContext) {
-      await browserContext.addInitScript(() => {
-        Math.random = () => 42;
-      });
-    },
-  };
-}
+const plugin = path.join(__dirname, 'plugin.js');
 
 async function checkPlugin(client: Client) {
   expect(await client.callTool({
@@ -41,13 +33,13 @@ async function checkPlugin(client: Client) {
 test.describe('plugin file', () => {
   test('with absolute path', async ({ startClient }, testInfo) => {
     const pluginPath = testInfo.outputPath('plugin.js');
-    await fs.writeFile(pluginPath, `module.exports = ${createPlugin.toString()}`);
+    await fs.copyFile(plugin, pluginPath);
     const client = await startClient({ args: ['--plugin', pluginPath] });
     await checkPlugin(client);
   });
   test('with relative path', async ({ startClient }, testInfo) => {
     const pluginPath = testInfo.outputPath('plugin.js');
-    await fs.writeFile(pluginPath, `module.exports = ${createPlugin.toString()}`);
+    await fs.copyFile(plugin, pluginPath);
     const client = await startClient({ args: ['--plugin', './plugin.js'], cwd: testInfo.outputDir });
     await checkPlugin(client);
   });
@@ -55,7 +47,7 @@ test.describe('plugin file', () => {
 
 test('installed npm module', async ({ startClient }, testInfo) => {
   await fs.mkdir(testInfo.outputPath('node_modules', '@acme', 'pw-plugin'), { recursive: true });
-  await fs.writeFile(testInfo.outputPath('node_modules', '@acme', 'pw-plugin', 'index.js'), `module.exports = ${createPlugin.toString()}`);
+  await fs.copyFile(plugin, testInfo.outputPath('node_modules', '@acme', 'pw-plugin', 'index.js'));
   const client = await startClient({ args: ['--plugin', '@acme/pw-plugin'], cwd: testInfo.outputDir });
   await checkPlugin(client);
 });

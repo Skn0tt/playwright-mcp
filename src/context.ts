@@ -276,8 +276,6 @@ ${code.join('\n')}
       const context = await this._createBrowserContext();
       this._browser = context.browser;
       this._browserContext = context.browserContext;
-      for (const plugin of this._plugins)
-        await plugin.onCreateBrowserContext(this._browserContext);
       for (const page of this._browserContext.pages())
         this._onPageCreated(page);
       this._browserContext.on('page', page => this._onPageCreated(page));
@@ -286,6 +284,12 @@ ${code.join('\n')}
   }
 
   private async _createBrowserContext(): Promise<{ browser?: playwright.Browser, browserContext: playwright.BrowserContext }> {
+    for (const plugin of this._plugins) {
+      const browserContext = await plugin.createBrowserContext(this.options.browserName ?? 'chromium', this.options.launchOptions);
+      if (browserContext)
+        return { browserContext, browser: browserContext.browser() ?? undefined };
+    }
+
     if (this.options.remoteEndpoint) {
       const url = new URL(this.options.remoteEndpoint);
       if (this.options.browserName)
