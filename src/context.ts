@@ -402,7 +402,7 @@ async function launchPersistentContext(browserConfig: FullConfig['browser']): Pr
   }
 }
 
-async function createUserDataDir(browserConfig: FullConfig['browser']) {
+export function getCacheDir() {
   let cacheDirectory: string;
   if (process.platform === 'linux')
     cacheDirectory = process.env.XDG_CACHE_HOME || path.join(os.homedir(), '.cache');
@@ -412,7 +412,11 @@ async function createUserDataDir(browserConfig: FullConfig['browser']) {
     cacheDirectory = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
   else
     throw new Error('Unsupported platform: ' + process.platform);
-  const result = path.join(cacheDirectory, 'ms-playwright', `mcp-${browserConfig.launchOptions?.channel ?? browserConfig?.browserName}-profile`);
+  return path.join(cacheDirectory, 'ms-playwright');
+}
+
+async function createUserDataDir(browserConfig: FullConfig['browser']) {
+  const result = path.join(getCacheDir(), `mcp-${browserConfig.launchOptions?.channel ?? browserConfig?.browserName}-profile`);
   await fs.promises.mkdir(result, { recursive: true });
   return result;
 }
