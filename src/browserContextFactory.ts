@@ -21,6 +21,7 @@ import os from 'node:os';
 
 import debug from 'debug';
 import * as playwright from 'playwright';
+import playwrightLibrary from 'playwright-core';
 import { userDataDir } from './fileUtils.js';
 
 import type { FullConfig } from './config.js';
@@ -160,7 +161,8 @@ class CoreBrowserServerContextFactory extends BaseContextFactory {
   }
 
   protected override async _doObtainBrowser(): Promise<playwright.Browser> {
-    const url = new URL(this.browserConfig.browserServer!);
+    const wsEndpoint: string = await (playwrightLibrary as any)._ensureBrowserServer();
+    const url = new URL(wsEndpoint);
     url.searchParams.set('connect', 'first');
     url.searchParams.set('launch-options', JSON.stringify(this.browserConfig.launchOptions));
     return playwright[this.browserConfig.browserName].connect(url.toString());

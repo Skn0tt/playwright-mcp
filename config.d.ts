@@ -31,7 +31,7 @@ export type Config = {
     /**
      * Use browser server (experimental).
      */
-    browserServer?: string;
+    browserServer?: boolean;
 
     /**
      * The type of browser to use.

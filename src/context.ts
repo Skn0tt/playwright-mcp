@@ -294,6 +294,9 @@ ${code.join('\n')}
     if (!this._browserContextPromise)
       return;
 
+    // if (this.config.browser.browserServer)
+    //   return;
+
     testDebug('close context');
 
     const promise = this._browserContextPromise;
